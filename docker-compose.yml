@@ -1,0 +1,39 @@
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: meu-postgres
+    environment:
+      POSTGRES_USER: meu_usuario
+      POSTGRES_PASSWORD: aluno
+      POSTGRES_DB: meu_banco
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - rede-interna
+
+  app:
+    build: . 
+    container_name: minha-aplicacao-web
+    restart: always
+    ports:
+      - "${APP_PORT}:3000"
+    environment:
+      DB_HOST: postgres-db
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD} 
+      DB_NAME: ${POSTGRES_DB}        
+    depends_on:
+      - postgres-db
+    networks:
+      - rede-interna
+
+
+volumes:
+  pgdata:
+
+networks:
+  rede-interna:
+    driver: bridge
